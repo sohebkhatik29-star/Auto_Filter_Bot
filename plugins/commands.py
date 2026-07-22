@@ -12,6 +12,8 @@ from Script import script
 from datetime import datetime, timedelta
 from database.refer import referdb
 from database.config_db import mdb
+from database.clone_db import add_clone_bot, get_clone_bot, delete_clone_bot
+from dreamxbotz.Bot.clients import start_clone_bot, stop_clone_bot
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, ReplyKeyboardMarkup
 from pyrogram import Client, filters, enums, StopPropagation
 from pyrogram.errors import FloodWait, UserNotParticipant , ChannelInvalid, PeerIdInvalid
@@ -198,8 +200,8 @@ async def start(client, message):
                 seconds = 2592000
                 if seconds > 0:
                     expiry_time = datetime.now() + timedelta(seconds=seconds)
-                    user_data = {"id": user_id, "expiry_time": expiry_time}  # Using "id" instead of "user_id"  
-                    await db.update_user(user_data)  # Use the update_user method to update or insert user data		    
+                    user_data = {"id": user_id, "expiry_time": expiry_time}  
+                    await db.update_user(user_data)		    
                     await client.send_message(
                         chat_id=user_id,
                         text=f"<b>Hᴇʏ {uss.mention}\n\nYᴏᴜ ɢᴏᴛ 1 ᴍᴏɴᴛʜ ᴘʀᴇᴍɪᴜᴍ sᴜʙsᴄʀɪᴘᴛɪᴏɴ ʙʏ ɪɴᴠɪᴛɪɴɢ 10 ᴜsᴇʀs ❗</b>",
@@ -243,7 +245,6 @@ async def start(client, message):
             grp_id = 0
             file_id = data
 
-        # Fetch file details concurrently with user checks
         file_details_task = asyncio.create_task(get_file_details(file_id))
 
         if not await db.has_premium_access(message.from_user.id): 
@@ -324,7 +325,6 @@ async def start(client, message):
                 print(f"Error In Verification - {e}")
                 pass
 
-        # Now, await the file details task
         files_ = await file_details_task
 
         if data.startswith("allfiles"):
@@ -382,8 +382,6 @@ async def start(client, message):
                 raise ValueError("Invalid encoded data")
             pre = raw[:sep].decode("ascii")
             file_id = raw[sep + 1:].decode("latin1")
-        # if not files_:
-        #     pre, file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))).decode("utf-8")).split("_", 1)
             try:
                 cover = None
                 if COVERX:
@@ -715,7 +713,6 @@ async def save_template(client, message):
     )
 
 
-# Must add REQST_CHANNEL and SUPPORT_CHAT_ID to use this feature
 @Client.on_message((filters.command(["request", "Request"]) | filters.regex("#request") | filters.regex("#Request")) & filters.group)
 async def requests(bot, message):
     if REQST_CHANNEL is None or SUPPORT_CHAT_ID is None:
@@ -1016,7 +1013,7 @@ async def save_caption(client, message):
     except:
         return await message.reply_text("<code>ɢɪᴠᴇ ᴍᴇ ᴀ ᴄᴀᴘᴛɪᴏɴ ᴀʟᴏɴɢ ᴡɪᴛʜ ɪᴛ.\n\nᴇxᴀᴍᴘʟᴇ -\n\nꜰᴏʀ ꜰɪʟᴇ ɴᴀᴍᴇ ꜱᴇɴᴅ <code>{file_name}</code>\nꜰᴏʀ ꜰɪʟᴇ ꜱɪᴢᴇ ꜱᴇɴᴅ <code>{file_size}</code>\n\n<code>/set_caption {file_name}</code></code>")
     await save_group_settings(grp_id, 'caption', caption)
-    await message.reply_text(f"ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴄʜᴀɴɢᴇᴅ ᴄᴀᴘᴛɪᴏɴ ꜰᴏʀ {title}\n\nᴄᴀᴘᴛɪᴏɴ - {caption}", disable_web_page_preview=True)
+    await message.reply_text(f"ꜱᴜᴄᴄᴇssꜰᴜʟʟʏ ᴄʜᴀɴɢᴇᴅ ᴄᴀᴘᴛɪᴏɴ ꜰᴏʀ {title}\n\nᴄᴀᴘᴛɪᴏɴ - {caption}", disable_web_page_preview=True)
     await client.send_message(LOG_API_CHANNEL, f"#Set_Caption\n\nɢʀᴏᴜᴘ ɴᴀᴍᴇ : {title}\n\nɢʀᴏᴜᴘ ɪᴅ: {grp_id}\nɪɴᴠɪᴛᴇ ʟɪɴᴋ : {invite_link}\n\nᴜᴘᴅᴀᴛᴇᴅ ʙʏ : {message.from_user.username}")
 
 
@@ -1462,3 +1459,78 @@ async def clean_groups_handler(client, message):
         except Exception as e:
             print(f'Error in clean_groups loop: {e}')
     await msg.edit(f'**Clean Groups Complete**\n\nTotal Processed: {processed}\nDeleted: {deleted_count}')
+
+
+# ===============================
+# 🤖 CLONE BOT COMMANDS
+# ===============================
+
+@Client.on_message(filters.command("clone") & filters.private)
+async def clone_bot(client, message):
+    user_id = message.from_user.id
+    
+    existing_clone = await get_clone_bot(user_id)
+    if existing_clone:
+        return await message.reply_text(
+            f"<b>⚠️ Yᴏᴜ ᴀʟʀᴇᴀᴅʏ ʜᴀᴠᴇ ᴀ Cʟᴏɴᴇ Bᴏᴛ!</b>\n\n"
+            f"<b>Bᴏᴛ:</b> @{existing_clone.get('bot_username')}\n\n"
+            f"<i>Iғ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ ᴅᴇʟᴇᴛᴇ ɪᴛ, ᴜsᴇ /deleteclone command.</i>"
+        )
+    
+    if len(message.command) < 2:
+        return await message.reply_text(
+            "<b>Usage:</b>\n"
+            "<code>/clone 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ</code>\n\n"
+            "<i>ɢᴇᴛ ʏᴏᴜʀ ʙᴏᴛ ᴛᴏᴋᴇɴ ꜰᴏʀᴍ @BotFather</i>"
+        )
+    
+    bot_token = message.text.split(" ", 1)[1].strip()
+    msg = await message.reply_text("<b>⏳ Processing clone bot creation...</b>")
+    
+    try:
+        app, err = await start_clone_bot(bot_token, user_id)
+        if err:
+            return await msg.edit(f"<b>❌ Error starting clone bot:</b>\n<code>{err}</code>")
+        
+        bot_info = await app.get_me()
+        bot_username = bot_info.username
+        bot_id = bot_info.id
+        
+        saved = await add_clone_bot(user_id, bot_token, bot_username, bot_id)
+        if saved:
+            await msg.edit(
+                f"<b>✅ Cʟᴏɴᴇ Bᴏᴛ Cʀᴇᴀᴛᴇᴅ Sᴜᴄᴄᴇssғᴜʟʟʏ!</b>\n\n"
+                f"<b>Bᴏᴛ Uꜱᴇʀɴᴀᴍᴇ:</b> @{bot_username}\n"
+                f"<b>Bᴏᴛ ID:</b> <code>{bot_id}</code>\n\n"
+                f"<i>Yᴏᴜʀ ᴄʟᴏɴᴇ ʙᴏᴛ ɪs ɴᴏᴡ ᴀᴄᴛɪᴠᴇ ᴀɴᴅ ʀᴇᴀᴅʏ ᴛᴏ ᴜsᴇ!</i>"
+            )
+        else:
+            await msg.edit("<b>❌ Failed to save clone details in Database!</b>")
+    except Exception as e:
+        logger.exception(f"Error in clone command: {e}")
+        await msg.edit(f"<b>❌ Error:</b> <code>{e}</code>")
+
+
+@Client.on_message(filters.command("deleteclone") & filters.private)
+async def delete_clone(client, message):
+    user_id = message.from_user.id
+    
+    clone = await get_clone_bot(user_id)
+    if not clone:
+        return await message.reply_text("<b>⚠️ Yᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴀɴʏ ᴀᴄᴛɪᴠᴇ Cʟᴏɴᴇ Bᴏᴛ!</b>")
+    
+    msg = await message.reply_text("<b>⏳ Deleting your clone bot...</b>")
+    
+    try:
+        bot_id = clone.get("_id")
+        await stop_clone_bot(bot_id)
+        deleted = await delete_clone_bot(user_id)
+        
+        if deleted:
+            await msg.edit(f"<b>✅ Cʟᴏɴᴇ Bᴏᴛ (@{clone.get('bot_username')}) Dᴇʟᴇᴛᴇᴅ Sᴜᴄᴄᴇssғᴜʟʟʏ!</b>")
+        else:
+            await msg.edit("<b>❌ Failed to delete clone bot from Database.</b>")
+    except Exception as e:
+        logger.exception(f"Error deleting clone: {e}")
+        await msg.edit(f"<b>❌ Error deleting clone:</b> <code>{e}</code>")
+
