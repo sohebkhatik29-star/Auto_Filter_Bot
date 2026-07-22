@@ -20,7 +20,7 @@ def is_enabled(value, default):
 SESSION = environ.get('SESSION', 'dreamxbotz_search')
 API_ID = int(environ.get('API_ID', '30720676'))
 API_HASH = environ.get('API_HASH', 'a078e3476750afbd6db7d6c5e5e658d9')
-BOT_TOKEN = environ.get('BOT_TOKEN', '')
+BOT_TOKEN = environ.get('BOT_TOKEN', '8743216573:AAE7BlsS9Yt21xU2LihHrRpy3Al8hRaUz1I')
 
 # ============================
 # Bot Settings Configuration
@@ -41,10 +41,10 @@ FSUB_PICS = (environ.get('FSUB_PICS', 'https://graph.org/file/7478ff3eac37f4329c
 # ============================
 # Admin, Channels & Users Configuration
 # ============================
-ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '634637418').split()]
+ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '5566977478').split()]
 CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-100').split()]
 
-LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-100'))
+LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1003444819050'))
 BIN_CHANNEL = int(environ.get('BIN_CHANNEL', '-100'))
 PREMIUM_LOGS = int(environ.get('PREMIUM_LOGS', '-100'))
 DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in environ.get('DELETE_CHANNELS', '-100').split()]
@@ -53,8 +53,8 @@ reqst_channel = environ.get('REQST_CHANNEL_ID', '-100')
 SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'https://t.me/')
 
 # FORCE_SUB 
-auth_req_channels = environ.get("AUTH_REQ_CHANNELS", "-100")
-auth_channels     = environ.get("AUTH_CHANNELS", "-100")
+auth_req_channels = environ.get("AUTH_REQ_CHANNELS", "-1002196570573")
+auth_channels     = environ.get("AUTH_CHANNELS", "-1002196570573")
 
 # ============================
 # Payment Configuration
@@ -73,8 +73,8 @@ STAR_PREMIUM_PLANS = {
 # ============================
 # MongoDB Configuration
 # ============================
-DATABASE_URI = environ.get('DATABASE_URI', "")
-CLONE_DB_URI = environ.get('CLONE_DB_URI', DATABASE_URI) # Clone bots ke liye MongoDB URI
+DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://sohebkhatik29_db_user:3E3bPvJH8ECFtpBq@cluster0.z6gan8b.mongodb.net/moviefilterbot?retryWrites=true&w=majority&appName=Cluster0")
+CLONE_DB_URI = environ.get('CLONE_DB_URI', "mongodb+srv://sohebkhatik8780_db_user:brPx0UDlM81rr91N@cluster0.qempoax.mongodb.net/?appName=Cluster0") # Clone bots ke liye MongoDB URI
 DATABASE_NAME = environ.get('DATABASE_NAME', "Cluster0")
 COLLECTION_NAME = environ.get('COLLECTION_NAME', 'dreamcinezone_files')
 
@@ -247,7 +247,7 @@ Bot_cmds = {
     "del_msg": "ʀᴇᴍᴏᴠᴇ ғɪʟᴇ ɴᴀᴍᴇ ᴄᴏʟʟᴇᴄᴛɪᴏɴ ɴᴏтɪғɪᴄᴀᴛɪᴏɴ...",
     "movie_update": "ᴏɴ ᴏғғ ᴀᴄᴄᴏʀᴅɪɴɢ ʏᴏᴜʀ ɴᴇᴇᴅᴇᴅ...",
     "pm_search": "ᴘᴍ sᴇᴀʀᴄʜ ᴏɴ ᴏғғ ᴀᴄᴄᴏʀᴅɪɴɢ ʏᴏᴜʀ ɴᴇᴇᴅᴇᴅ...",
-    "trendlist": "Gᴇᴛ Tᴏᴘ Tʀᴀɴᴅɪɴɢ Sᴇᴀʀᴄʜ Lɪsᴛ",
+    "trendlist": "Gᴇᴛ Tᴏᴘ TʀᴀɴᴅɪɴGSᴇᴀʀᴄʜ Lɪsᴛ",
     "broadcast": "ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴀ ᴍᴇꜱꜱᴀɢᴇ ᴛᴏ ᴀʟʟ ᴜꜱᴇʀꜱ.",
     "grp_broadcast": "ʙʀᴏᴀᴅᴄᴀsᴛ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ᴀʟʟ ᴄᴏɴɴᴇᴄᴛᴇᴅ ɢʀᴏᴜᴘs",
     "send": "ꜱᴇɴᴅ ᴍᴇꜱꜱᴀɢᴇ ᴛᴏ ᴀ ᴘᴀʀᴛɪᴄᴜʟᴀʀ ᴜꜱᴇʀ.",
