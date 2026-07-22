@@ -71,10 +71,11 @@ STAR_PREMIUM_PLANS = {
 }
 
 # ============================
-# MongoDB Configuration
+# MongoDB & Clone Configuration
 # ============================
 DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://sohebkhatik29_db_user:3E3bPvJH8ECFtpBq@cluster0.z6gan8b.mongodb.net/moviefilterbot?retryWrites=true&w=majority&appName=Cluster0")
 CLONE_DB_URI = environ.get('CLONE_DB_URI', "mongodb+srv://sohebkhatik8780_db_user:brPx0UDlM81rr91N@cluster0.qempoax.mongodb.net/?appName=Cluster0") # Clone bots ke liye MongoDB URI
+CLONE_MODE = is_enabled(environ.get('CLONE_MODE', 'True'), True) # Added to fix NameError: name 'CLONE_MODE' is not defined
 DATABASE_NAME = environ.get('DATABASE_NAME', "Cluster0")
 COLLECTION_NAME = environ.get('COLLECTION_NAME', 'dreamcinezone_files')
 
