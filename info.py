@@ -20,7 +20,7 @@ def is_enabled(value, default):
 SESSION = environ.get('SESSION', 'dreamxbotz_search')
 API_ID = int(environ.get('API_ID', '30720676'))
 API_HASH = environ.get('API_HASH', 'a078e3476750afbd6db7d6c5e5e658d9')
-BOT_TOKEN = environ.get('BOT_TOKEN', '8786608330:AAHx-xNlkZEMvPSKxNGCZ5XOJi6ER4dafOg')
+BOT_TOKEN = environ.get('BOT_TOKEN', '')
 
 # ============================
 # Bot Settings Configuration
