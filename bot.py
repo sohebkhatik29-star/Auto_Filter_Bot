@@ -22,11 +22,16 @@ from dreamxbotz.Bot.clients import initialize_clients
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = 500_000_000
 
-# Clone Bot DB Import
+# Clone Bot DB & CLONE_MODE Safe Import
 try:
     from database.clone_db import restart_clones
 except ImportError:
     restart_clones = None
+
+try:
+    CLONE_MODE = CLONE_MODE
+except NameError:
+    CLONE_MODE = True
 
 import logging
 import logging.config
@@ -163,5 +168,5 @@ if __name__ == '__main__':
             time.sleep(e.value) 
         except KeyboardInterrupt:
             logging.info('Service Stopped Bye 👋')
-            break 
+            break
 
