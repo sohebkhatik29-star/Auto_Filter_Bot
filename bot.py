@@ -22,6 +22,12 @@ from dreamxbotz.Bot.clients import initialize_clients
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = 500_000_000
 
+# Clone Bot DB Import
+try:
+    from database.clone_db import restart_clones
+except ImportError:
+    restart_clones = None
+
 import logging
 import logging.config
 
@@ -87,23 +93,38 @@ async def dreamxbotz_start():
     await dreamxbotz.start()
     bot_info = await dreamxbotz.get_me()
     dreamxbotz.username = bot_info.username
+    
+    # Initialize multi-clients
     await initialize_clients()
+    
+    # Start all Clone Bots from Database
+    if CLONE_MODE and restart_clones:
+        try:
+            logging.info("🤖 Restoring & starting active Clone Bots...")
+            await restart_clones(dreamxbotz)
+        except Exception as e:
+            logging.error(f"Error starting clone bots: {e}")
+
     loaded_plugins = dreamxbotz_plugins_handler(dreamxbotz)
     if loaded_plugins:
         logging.info("✅ Plugins Loaded: %d", len(loaded_plugins))
     else:
         logging.info("⚠️ No Plugins Loaded.")
+        
     if ON_HEROKU:
         asyncio.create_task(ping_server()) 
+        
     b_users, b_chats = await db.get_banned()
     temp.BANNED_USERS = b_users
     temp.BANNED_CHATS = b_chats
     await Media.ensure_indexes()
+    
     if MULTIPLE_DB:
         await Media2.ensure_indexes()
         print("Multiple Database Mode On. Now Files Will Be Save In Second DB If First DB Is Full")
     else:
         print("Single DB Mode On ! Files Will Be Save In First Database")
+        
     me = await dreamxbotz.get_me()
     temp.ME = me.id
     temp.U_NAME = me.username
@@ -111,18 +132,23 @@ async def dreamxbotz_start():
     temp.B_LINK = me.mention
     dreamxbotz.username = '@' + me.username
     dreamxbotz.loop.create_task(check_expired_premium(dreamxbotz))
+    
     logging.info(f"{me.first_name} with Pyrogram v{__version__} (Layer {layer}) started on {me.username}.")
     logging.info(LOG_STR)
     logging.info(script.LOGO)
+    
     tz = pytz.timezone('Asia/Kolkata')
     today = date.today()
     now = datetime.now(tz)
-    time = now.strftime("%H:%M:%S %p")
-    await dreamxbotz.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(temp.B_LINK, today, time))
+    time_str = now.strftime("%H:%M:%S %p")
+    
+    await dreamxbotz.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(temp.B_LINK, today, time_str))
+    
     app = web.AppRunner(await web_server())
     await app.setup()
     bind_address = "0.0.0.0"
     await web.TCPSite(app, bind_address, PORT).start()
+    
     dreamxbotz.loop.create_task(keep_alive())
     await idle()
     
@@ -137,4 +163,5 @@ if __name__ == '__main__':
             time.sleep(e.value) 
         except KeyboardInterrupt:
             logging.info('Service Stopped Bye 👋')
-            break
+            break 
+
